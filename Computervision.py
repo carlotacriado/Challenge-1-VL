@@ -69,7 +69,7 @@ for image in all_images:
 
         # Extend the bounding box by a margin to increase the area checked for blue
         margin_x = 200
-        margin_y = 50
+        margin_y = 10
         x_extended = max(0, x - margin_x)
         y_extended = max(0, y - margin_y)
         w_extended = min(img.shape[1], x + w + margin_x) - x_extended

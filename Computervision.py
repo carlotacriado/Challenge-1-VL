@@ -1,110 +1,97 @@
 import cv2
 import numpy as np
 
-# Cargar la imagen
-imagen = cv2.imread(r'C:\Users\carlo\OneDrive\Escritorio\trimestre 3\vision & learning\challenge 1\Challenge-1-VL\Challenge-1-VL\Base Images\Frontal\images\067KSH.jpg')
 
-print('image found')
+images_frontal = ["Base Images/Frontal/images/067KSH.jpeg","Base Images/Frontal/images/1062FNT.jpg","Base Images/Frontal/images/1565HTS.jpg",
+          "Base Images/Frontal/images/2153GYX.jpg", "Base Images/Frontal/images/2929KXJ.jpg","Base Images/Frontal/images/3340JMF.jpg",
+          "Base Images/Frontal/images/3587DCX.jpg", "Base Images/Frontal/images/4674FHC.jpg", "Base Images/Frontal/images/5275HGY.jpg",
+          "Base Images/Frontal/images/5488LKV.jpg", "Base Images/Frontal/images/5796DKP.jpg", "Base Images/Frontal/images/7153JWD.jpg",
+          "Base Images/Frontal/images/8727JTC.jpg",  "Base Images/Frontal/images/9247CZG.jpg", "Base Images/Frontal/images/9892JFR.jpg"]
 
-# Redimensionar la imagen
-imagen_redimensionada = cv2.resize(imagen, (800, 600))
-# Mostrar la imagen
-cv2.imshow('Imagen', imagen_redimensionada)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+images_lateral = ["Base Images/Lateral/images/0182GLK.jpg","Base Images/Lateral/images/0907JRF.jpg","Base Images/Lateral/images/1498JBZ.jpg",
+                  "Base Images/Lateral/images/1556GMZ.jpg","Base Images/Lateral/images/2344KJP.jpg","Base Images/Lateral/images/3044JMB.jpg",
+                  "Base Images/Lateral/images/3587DCX.jpg","Base Images/Lateral/images/3660CRT.jpg","Base Images/Lateral/images/4674FHC.jpg",
+                  "Base Images/Lateral/images/5275HGY.jpg","Base Images/Lateral/images/5789JHB.jpg","Base Images/Lateral/images/5796DKP.jpg",
+                  "Base Images/Lateral/images/6000GVT.jpg","Base Images/Lateral/images/6401JBX.jpg","Base Images/Lateral/images/6554BNX.jpg",
+                  "Base Images/Lateral/images/6929LKK.jpg","Base Images/Lateral/images/8727JTC.jpg"]
 
-# Convertir la imagen a escala de grises
-imagen_gris = cv2.cvtColor(imagen_redimensionada, cv2.COLOR_BGR2GRAY)
-cv2.imshow('Imagen Procesada', imagen_gris)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+all_images = images_frontal+images_lateral
 
-# Aplicar GaussianBlur
-imagen_blur = cv2.GaussianBlur(imagen_gris, (5, 5), 0)
-cv2.imshow('Imagen Blur', imagen_blur)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-# Detección de bordes
-bordes = cv2.Canny(imagen_blur, 100, 200)
-
-# Encontrar contornos
-contornos, _ = cv2.findContours(bordes, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-# Función para verificar la presencia de azul en una imagen
-def contiene_azul(region):
+def contains_blue(region):
     hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
-    lower_blue = np.array([100, 150, 0])
-    upper_blue = np.array([140, 255, 255])
+    lower_blue = np.array([105, 170, 70])
+    upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
-    azul_pixels = cv2.countNonZero(mask)
-    return azul_pixels > 500  # Ajusta este umbral según sea necesario
+    blue_pixels = cv2.countNonZero(mask)
+    return blue_pixels > 350  # Ajusta este umbral según sea necesario
 
-for contorno in contornos:
-    # Aproximar el contorno a un polígono
-    epsilon = 0.02 * cv2.arcLength(contorno, True)
-    approx = cv2.approxPolyDP(contorno, epsilon, True)
+for image in all_images:
 
-    # Si tiene 4 vértices, es un posible rectángulo
-    if len(approx) == 4:
-        x, y, w, h = cv2.boundingRect(approx)
-        aspect_ratio = w / h
+    # Load the image
+    img = cv2.imread(image)
 
-        # Filtrar por la relación de aspecto típica de una matrícula
-        if 2 < aspect_ratio < 5:
-            # Extraer la región de la matrícula
-            matricula_recortada = imagen_redimensionada[y:y + h, x:x + w]
+    # Convert to grayscale so that we can apply the following operations
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            # Comprobar si la región contiene azul
-            if contiene_azul(matricula_recortada):
-                # Dibujar el rectángulo sobre la matrícula detectada
-                cv2.rectangle(imagen_redimensionada, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    # Apply blur to get rid of noise in the image, it allows for cleaner results
+    blur = cv2.GaussianBlur(gray, (35,35), 5)
 
-                # Redimensionar la matrícula recortada para visualizar
-                matricula_recortada = cv2.resize(matricula_recortada, (800, 200))  # Ajusta el tamaño según sea necesario
+    # Apply blackhat operation to highlight to reveal dark regions (numbers) over light regions (the plate itself)
+    filterSize = (41, 41)  
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, filterSize)
+    blackhat = cv2.morphologyEx(blur, cv2.MORPH_BLACKHAT, kernel, iterations=1)
 
-                # Mostrar la matrícula detectada
-                cv2.imshow('Matrícula Detectada', matricula_recortada)
+    # Apply blackhat operation again, this time using a rectangular kernel to hopefully remark the plate and not the rest of elements
+    filterSize = (200, 5)  
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, filterSize)
+    blackhat = cv2.morphologyEx(blackhat, cv2.MORPH_BLACKHAT, kernel, iterations=1)
 
-# Mostrar la imagen original con el rectángulo
-cv2.imshow('Imagen Original con Matrícula', imagen_redimensionada)
-cv2.waitKey(0)
+    # Binarize the image so that the plate (and if lucky nothing else) remains white while the rest of the image is black
+    _, binary = cv2.threshold(blackhat, 90, 255, cv2.THRESH_BINARY)
 
-# Cerrar todas las ventanas de OpenCV
-cv2.destroyAllWindows()
+    # Apply several morphological operations:
+    filterSize = (11,11)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, filterSize)
+    binary = cv2.morphologyEx(binary, cv2.MORPH_DILATE, kernel, iterations= 5) # Dilate to make sure the rectangle will cover the whole plate in the original image
+    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations= 5) # Close operation so that tiny gaps are closed and achieve a much better resut
 
 
-# import cv2
-# import os
+    # Find contours in the binary image
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# # Ruta de la carpeta que contiene las imágenes
-# ruta_carpeta = r'C:\Users\carlo\OneDrive\Escritorio\trimestre 3\vision & learning\challenge 1\Challenge-1-VL\Challenge-1-VL\Base Images\Frontal\images'
+    # Sort contours by area in descending order
+    sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-# # Obtener la lista de archivos en la carpeta
-# imagenes = os.listdir(ruta_carpeta)
+    # Iterate through the sorted contours
+    for contour in sorted_contours:
+        # Get the bounding box for the current contour
+        x, y, w, h = cv2.boundingRect(contour)
 
-# # Filtrar solo los archivos de imagen (puedes agregar más extensiones si es necesario)
-# extensiones_imagenes = ['.jpg', '.jpeg', '.png']
-# imagenes = [img for img in imagenes if os.path.splitext(img)[1].lower() in extensiones_imagenes]
+        # Extend the bounding box by a margin to increase the area checked for blue
+        margin_x = 200
+        margin_y = 50
+        x_extended = max(0, x - margin_x)
+        y_extended = max(0, y - margin_y)
+        w_extended = min(img.shape[1], x + w + margin_x) - x_extended
+        h_extended = min(img.shape[0], y + h + margin_y) - y_extended
 
-# # Procesar cada imagen
-# for nombre_imagen in imagenes:
-#     # Crear la ruta completa de la imagen
-#     ruta_imagen = os.path.join(ruta_carpeta, nombre_imagen)
+        # Crop the extended region from the original image
+        region = img[y_extended:y_extended + h_extended, x_extended:x_extended + w_extended]
 
-#     # Cargar la imagen
-#     imagen = cv2.imread(ruta_imagen)
+        # Check if the extended region contains blue
+        if contains_blue(region):
+            # Draw a rectangle around the blob that contains blue
+            cv2.rectangle(img, (x_extended, y_extended), (x_extended + w_extended, y_extended + h_extended), (0, 255, 0), 3)
 
-#     # Verificar si la imagen se ha cargado correctamente
-#     if imagen is None:
-#         print(f"Error: No se pudo cargar la imagen {nombre_imagen}.")
-#         continue
-
-#     # Mostrar la imagen
-#     cv2.imshow('Imagen', imagen)
-
-#     # Esperar a que se presione una tecla para cerrar la ventana
-#     cv2.waitKey(0)
-
-# # Cerrar todas las ventanas de OpenCV
-# cv2.destroyAllWindows()
+            # Display the result and exit the loop after detecting the first valid blob
+            cv2.imshow("Blob with Blue Detected", img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            break
+    else:
+        # If no contour containing blue is found, display a message
+        cv2.imshow("No Blue Detected", img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+# I think if we take the biggest blue blob should work for all but one, to fix it if we add that it has to contain blue in the
+# original image we should be set  :D

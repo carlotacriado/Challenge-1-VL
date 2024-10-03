@@ -2,21 +2,6 @@ import cv2
 import numpy as np
 
 
-images_frontal = ["Base Images/Frontal/images/067KSH.jpeg","Base Images/Frontal/images/1062FNT.jpg","Base Images/Frontal/images/1565HTS.jpg",
-          "Base Images/Frontal/images/2153GYX.jpg", "Base Images/Frontal/images/2929KXJ.jpg","Base Images/Frontal/images/3340JMF.jpg",
-          "Base Images/Frontal/images/3587DCX.jpg", "Base Images/Frontal/images/4674FHC.jpg", "Base Images/Frontal/images/5275HGY.jpg",
-          "Base Images/Frontal/images/5488LKV.jpg", "Base Images/Frontal/images/5796DKP.jpg", "Base Images/Frontal/images/7153JWD.jpg",
-          "Base Images/Frontal/images/8727JTC.jpg",  "Base Images/Frontal/images/9247CZG.jpg", "Base Images/Frontal/images/9892JFR.jpg"]
-
-images_lateral = ["Base Images/Lateral/images/0182GLK.jpg","Base Images/Lateral/images/0907JRF.jpg","Base Images/Lateral/images/1498JBZ.jpg",
-                  "Base Images/Lateral/images/1556GMZ.jpg","Base Images/Lateral/images/2344KJP.jpg","Base Images/Lateral/images/3044JMB.jpg",
-                  "Base Images/Lateral/images/3587DCX.jpg","Base Images/Lateral/images/3660CRT.jpg","Base Images/Lateral/images/4674FHC.jpg",
-                  "Base Images/Lateral/images/5275HGY.jpg","Base Images/Lateral/images/5789JHB.jpg","Base Images/Lateral/images/5796DKP.jpg",
-                  "Base Images/Lateral/images/6000GVT.jpg","Base Images/Lateral/images/6401JBX.jpg","Base Images/Lateral/images/6554BNX.jpg",
-                  "Base Images/Lateral/images/6929LKK.jpg","Base Images/Lateral/images/8727JTC.jpg"]
-
-all_images = images_frontal+images_lateral
-
 def contains_blue(region):
     hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
     lower_blue = np.array([105, 170, 70])
@@ -25,10 +10,12 @@ def contains_blue(region):
     blue_pixels = cv2.countNonZero(mask)
     return blue_pixels > 350  # Ajusta este umbral según sea necesario
 
-for image in all_images:
-
+def find_plate(image):
     # Load the image
     img = cv2.imread(image)
+    cv2.imshow("Image with plate detected", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows
 
     # Convert to grayscale so that we can apply the following operations
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -83,15 +70,8 @@ for image in all_images:
             # Draw a rectangle around the blob that contains blue
             cv2.rectangle(img, (x_extended, y_extended), (x_extended + w_extended, y_extended + h_extended), (0, 255, 0), 3)
 
-            # Display the result and exit the loop after detecting the first valid blob
-            cv2.imshow("Blob with Blue Detected", img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-            break
+            return img, region
     else:
         # If no contour containing blue is found, display a message
-        cv2.imshow("No Blue Detected", img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-# I think if we take the biggest blue blob should work for all but one, to fix it if we add that it has to contain blue in the
-# original image we should be set  :D
+        print("Could not find a plate")
+        return None, None

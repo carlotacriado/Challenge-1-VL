@@ -1,19 +1,21 @@
 import cv2
 import numpy as np
-from Computervision import *
+from PlateDetection import *
+from Segmentation import *
 
-images_frontal = ["Base Images/Frontal/images/067KSH.jpg","Base Images/Frontal/images/1062FNT.jpg","Base Images/Frontal/images/1565HTS.jpg",
-          "Base Images/Frontal/images/2153GYX.jpg", "Base Images/Frontal/images/2929KXJ.jpg","Base Images/Frontal/images/3340JMF.jpg",
-          "Base Images/Frontal/images/3587DCX.jpg", "Base Images/Frontal/images/4674FHC.jpg", "Base Images/Frontal/images/5275HGY.jpg",
-          "Base Images/Frontal/images/5488LKV.jpg", "Base Images/Frontal/images/5796DKP.jpg", "Base Images/Frontal/images/7153JWD.jpg",
-          "Base Images/Frontal/images/8727JTC.jpg",  "Base Images/Frontal/images/9247CZG.jpg", "Base Images/Frontal/images/9892JFR.jpg"]
 
-images_lateral = ["Base Images/Lateral/images/0182GLK.jpg","Base Images/Lateral/images/0907JRF.jpg","Base Images/Lateral/images/1498JBZ.jpg",
-                  "Base Images/Lateral/images/1556GMZ.jpg","Base Images/Lateral/images/2344KJP.jpg","Base Images/Lateral/images/3044JMB.jpg",
-                  "Base Images/Lateral/images/3587DCX.jpg","Base Images/Lateral/images/3660CRT.jpg","Base Images/Lateral/images/4674FHC.jpg",
-                  "Base Images/Lateral/images/5275HGY.jpg","Base Images/Lateral/images/5789JHB.jpg","Base Images/Lateral/images/5796DKP.jpg",
-                  "Base Images/Lateral/images/6000GVT.jpg","Base Images/Lateral/images/6401JBX.jpg","Base Images/Lateral/images/6554BNX.jpg",
-                  "Base Images/Lateral/images/6929LKK.jpg","Base Images/Lateral/images/8727JTC.jpg"]
+images_frontal = ["BaseImages/Frontal/067KSH.jpg","BaseImages/Frontal/1062FNT.jpg","BaseImages/Frontal/1565HTS.jpg",
+                  "BaseImages/Frontal/2153GYX.jpg","BaseImages/Frontal/2929KXJ.jpg","BaseImages/Frontal/3340JMF.jpg",
+                  "BaseImages/Frontal/3587DCX.jpg","BaseImages/Frontal/4674FHC.jpg","BaseImages/Frontal/5275HGY.jpg",
+                  "BaseImages/Frontal/5488LKV.jpg","BaseImages/Frontal/5796DKP.jpg","BaseImages/Frontal/7153JWD.jpg",
+                  "BaseImages/Frontal/8727JTC.jpg","BaseImages/Frontal/9247CZG.jpg","BaseImages/Frontal/9892JFR.jpg"]
+
+images_lateral = ["BaseImages/Lateral/0182GLK.jpg","BaseImages/Lateral/0907JRF.jpg","BaseImages/Lateral/1498JBZ.jpg",
+                  "BaseImages/Lateral/1556GMZ.jpg","BaseImages/Lateral/2344KJP.jpg","BaseImages/Lateral/3044JMB.jpg",
+                  "BaseImages/Lateral/3587DCX.jpg","BaseImages/Lateral/3660CRT.jpg","BaseImages/Lateral/4674FHC.jpg",
+                  "BaseImages/Lateral/5275HGY.jpg","BaseImages/Lateral/5789JHB.jpg","BaseImages/Lateral/5796DKP.jpg",
+                  "BaseImages/Lateral/6000GVT.jpg","BaseImages/Lateral/6401JBX.jpg","BaseImages/Lateral/6554BNX.jpg",
+                  "BaseImages/Lateral/6929LKK.jpg","BaseImages/Lateral/8727JTC.jpg"]
 
 all_images = images_frontal+images_lateral
 

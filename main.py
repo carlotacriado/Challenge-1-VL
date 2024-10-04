@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from PlateDetection import *
-from Segmentation import *
+
 
 
 images_frontal = ["BaseImages/Frontal/067KSH.jpg","BaseImages/Frontal/1062FNT.jpg","BaseImages/Frontal/1565HTS.jpg",
@@ -20,7 +20,9 @@ images_lateral = ["BaseImages/Lateral/0182GLK.jpg","BaseImages/Lateral/0907JRF.j
 all_images = images_frontal+images_lateral
 
 for image in all_images:
-    plate_detected, region = find_plate(image)
+    plate_detected, cropped_region = find_plate(image)
     cv2.imshow("Image with plate detected", plate_detected)
+    cv2.imshow("Cropped plate", cropped_region)
     cv2.waitKey(0)
     cv2.destroyAllWindows
+

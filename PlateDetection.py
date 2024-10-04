@@ -63,7 +63,7 @@ def find_plate(image):
         h_extended = min(img.shape[0], y + h + margin_y) - y_extended
 
         # Crop the extended region from the original image
-        region = img[y_extended:y_extended + h_extended, x_extended:x_extended + w_extended]
+        region = img[y_extended:y_extended + h_extended, x_extended:x_extended + w_extended].copy()
 
         # Check if the extended region contains blue
         if contains_blue(region):

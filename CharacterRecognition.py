@@ -13,28 +13,25 @@ def load_templates(template_folder):
 
             if template_image is not None:
                 # Separate color channels and the alpha channel
-                if template_image.shape[2] == 4:  # If there is an alpha channel
+                if template_image.shape[2] == 4:  # Check if there is an alpha channel
                     # Split the channels
                     b_channel, g_channel, r_channel, alpha_channel = cv2.split(template_image)
                     # Create a mask where the alpha channel is greater than 0 (visible areas)
                     visible_mask = alpha_channel > 0
 
-                    # Convert the visible areas to grayscale
                     grayscale_template = cv2.cvtColor(template_image[:, :, :3], cv2.COLOR_BGR2GRAY)
                     grayscale_template = np.where(visible_mask, grayscale_template, 255)
 
-                    # Apply thresholding to clean up the image
                     _, binary_template = cv2.threshold(grayscale_template, 253, 255, cv2.THRESH_BINARY)
-
-                    # Invert the binary template
                     binary_template = cv2.bitwise_not(binary_template)
+
                 else:
-                    # If the image doesn't have an alpha channel, use the grayscale method directly
+                    # If the image doesn't have an alpha channel, use the grayscale method directly (this is just in case but should not affect us with the images we have)
                     grayscale_template = cv2.cvtColor(template_image, cv2.COLOR_BGR2GRAY)
                     _, binary_template = cv2.threshold(grayscale_template, 127, 255, cv2.THRESH_BINARY)
                     binary_template = cv2.bitwise_not(binary_template)
 
-                # Find contours in the binary image
+                # Find contours
                 contours, _ = cv2.findContours(binary_template, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
                 if contours:

@@ -8,19 +8,11 @@ def contains_blue(region):
     upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
     blue_pixels = cv2.countNonZero(mask)
-    return blue_pixels > 350  # Ajusta este umbral según sea necesario
+    return blue_pixels > 350
 
 def find_plate(image):
-    # Load the image
     img = cv2.imread(image)
-    cv2.imshow("Image with plate detected", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows
-
-    # Convert to grayscale so that we can apply the following operations
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Apply blur to get rid of noise in the image, it allows for cleaner results
     blur = cv2.GaussianBlur(gray, (35,35), 5)
 
     # Apply blackhat operation to highlight to reveal dark regions (numbers) over light regions (the plate itself)
@@ -36,12 +28,10 @@ def find_plate(image):
     # Binarize the image so that the plate (and if lucky nothing else) remains white while the rest of the image is black
     _, binary = cv2.threshold(blackhat, 90, 255, cv2.THRESH_BINARY)
 
-    # Apply several morphological operations:
     filterSize = (11,11)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, filterSize)
     binary = cv2.morphologyEx(binary, cv2.MORPH_DILATE, kernel, iterations= 5) # Dilate to make sure the rectangle will cover the whole plate in the original image
     binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations= 5) # Close operation so that tiny gaps are closed and achieve a much better resut
-
 
     # Find contours in the binary image
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -49,12 +39,11 @@ def find_plate(image):
     # Sort contours by area in descending order
     sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-    # Iterate through the sorted contours
     for contour in sorted_contours:
         # Get the bounding box for the current contour
         x, y, w, h = cv2.boundingRect(contour)
 
-        # Extend the bounding box by a margin to increase the area checked for blue
+        # Extend the bounding box by a margin to increase the area checked for blue (this yields better results, proved experimentally)
         margin_x = 200
         margin_y = 10
         x_extended = max(0, x - margin_x)

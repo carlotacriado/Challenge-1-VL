@@ -6,15 +6,25 @@ from Segmentation import *
 from CharacterRecognition import *
 import os
 
-frontal_images = "BaseImages/Frontal"
-lateral_images = "BaseImages/Lateral"
-
 def load_images(path, list):
     for filename in os.listdir(path):
         if filename.endswith('.png') or filename.endswith('.jpg'):
             img_path = os.path.join(path, filename)
             list.append(img_path)
     return list
+
+def write_text(target_image, text):
+    position = (200, 200)
+    font = cv2.FONT_HERSHEY_SIMPLEX  # Font type
+    font_scale = 4  # Font size
+    color = (0, 255, 0)  # Text color (B, G, R) in white
+    thickness = 8  # Thickness of the text
+
+    cv2.putText(target_image, text, position, font, font_scale, color, thickness)
+    return target_image
+
+frontal_images = "BaseImages/Frontal"
+lateral_images = "BaseImages/Lateral"
 
 all_images = load_images(frontal_images, list=[])
 all_images = load_images(lateral_images, all_images)
@@ -53,5 +63,11 @@ for image_path, correct_plate in zip(all_images, all_plates_list):
 
     if plate == correct_plate:
         correct_detection += 1
+    
+    result_image = write_text(plate_detected, plate)
+    cv2.imshow("Final result", result_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows
+    
 
 print(f"Correctly detected plates: {correct_detection} out of {len(all_plates_list)} \nAccuracy: {(correct_detection/len(all_plates_list))}")

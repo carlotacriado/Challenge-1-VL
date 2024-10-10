@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+# desired shape: (2268, 4032, 3)
 
 def contains_blue(region):
     hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
@@ -8,15 +8,18 @@ def contains_blue(region):
     upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
     blue_pixels = cv2.countNonZero(mask)
-    return blue_pixels > 350
+    if blue_pixels > 350:
+        return True
+    else:
+        print("Could not find blue region")
+        return False
 
 def find_plate(image):
-    img = cv2.imread(image)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (35,35), 5)
 
     # Apply blackhat operation to highlight to reveal dark regions (numbers) over light regions (the plate itself)
-    filterSize = (41, 41)  
+    filterSize = (41, 41)   
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, filterSize)
     blackhat = cv2.morphologyEx(blur, cv2.MORPH_BLACKHAT, kernel, iterations=1)
 
@@ -48,18 +51,18 @@ def find_plate(image):
         margin_y = 10
         x_extended = max(0, x - margin_x)
         y_extended = max(0, y - margin_y)
-        w_extended = min(img.shape[1], x + w + margin_x) - x_extended
-        h_extended = min(img.shape[0], y + h + margin_y) - y_extended
+        w_extended = min(image.shape[1], x + w + margin_x) - x_extended
+        h_extended = min(image.shape[0], y + h + margin_y) - y_extended
 
         # Crop the extended region from the original image
-        region = img[y_extended:y_extended + h_extended, x_extended:x_extended + w_extended].copy()
+        region = image[y_extended:y_extended + h_extended, x_extended:x_extended + w_extended].copy()
 
         # Check if the extended region contains blue
         if contains_blue(region):
             # Draw a rectangle around the blob that contains blue
-            cv2.rectangle(img, (x_extended, y_extended), (x_extended + w_extended, y_extended + h_extended), (0, 255, 0), 3)
+            cv2.rectangle(image, (x_extended, y_extended), (x_extended + w_extended, y_extended + h_extended), (0, 255, 0), 3)
 
-            return img, region
+            return image, region
     else:
         # If no contour containing blue is found, display a message
         print("Could not find a plate")

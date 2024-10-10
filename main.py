@@ -43,12 +43,8 @@ lateral_images = "BaseImages/Lateral"
 own_frontal_images = "FinalDataset/Frontal"
 own_lateral_images = "FinalDataset/Lateral"
 
-own_database = "OwnDatabase"
-single_image = ["4354LPC.jpg"]
-
 all_images = load_images(frontal_images, list=[])
 all_images = load_images(lateral_images, all_images)
-our_images = load_images(own_database, [])
 own_all_images = load_images(own_frontal_images, list=[])
 own_all_images = load_images(own_lateral_images, own_all_images)
 

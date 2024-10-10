@@ -13,7 +13,6 @@ def segment_plate(cropped_region):
 
     # Contour detection
     contours, _ = cv2.findContours(morph_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
     # Filter contours by size (to isolate characters)
     character_contours = []
     for contour1 in contours:
@@ -21,7 +20,7 @@ def segment_plate(cropped_region):
         aspect_ratio = w / float(h)
 
         # Filter based on size and aspect ratio expected for characters, removing non-wanted blobs
-        if 0.2 < aspect_ratio < 0.75 and h > 50:
+        if 0.1 < aspect_ratio < 0.85 and h > 35:
             character_contours.append((x, y, w, h, contour1))
 
     # Sort the character contours by x-coordinate (ascending)

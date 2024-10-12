@@ -61,6 +61,8 @@ for image in own_all_images:
 
 correct_detection = 0
 
+display = True # Set to True to show the result in an image, set to False to skip that (Will still print detected and correct plate)
+
 for image_path, correct_plate in zip(own_all_images, all_plates_list):
     target_height, target_width = (2268, 4032)
     img = cv2.imread(image_path)
@@ -85,10 +87,12 @@ for image_path, correct_plate in zip(own_all_images, all_plates_list):
         correct_detection += 1
     
     result_image = write_text(plate_detected, plate)
-    cv2.imshow("Final result", result_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows
+    if display == True:
+        cv2.imshow("Final result", result_image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows
     print(f"Plate Detected:{plate}")
+    print(f"Right Plate:  :{correct_plate}")
     
 
 print(f"Correctly detected plates: {correct_detection} out of {len(all_plates_list)} \nAccuracy: {(correct_detection/len(all_plates_list))}")

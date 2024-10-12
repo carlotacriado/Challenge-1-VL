@@ -15,9 +15,15 @@ def load_images(path, list):
 def write_text(target_image, text):
     position = (200, 200)
     font = cv2.FONT_HERSHEY_SIMPLEX  # Font type
-    font_scale = 4  # Font size
+    font_scale = 6  # Font size
     color = (0, 255, 0)  # Text color (B, G, R) in white
-    thickness = 8  # Thickness of the text
+    thickness = 12  # Thickness of the text
+
+    # Draw a rectangle under the letters to improve readibility
+    text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
+    rect_top_left = (position[0], position[1] - text_size[1] - 30)  
+    rect_bottom_right = (position[0] + text_size[0], position[1] + 30) 
+    cv2.rectangle(target_image, rect_top_left, rect_bottom_right, (0, 0, 0), -1)  # Black rectangle
 
     cv2.putText(target_image, text, position, font, font_scale, color, thickness)
     return target_image

@@ -16,7 +16,7 @@ def write_text(target_image, text):
     text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
     rect_top_left = (position[0], position[1] - text_size[1] - 30)  
     rect_bottom_right = (position[0] + text_size[0], position[1] + 30) 
-    cv2.rectangle(target_image, rect_top_left, rect_bottom_right, (0, 0, 0), -1)  # Black rectangle
+    cv2.rectangle(target_image, rect_top_left, rect_bottom_right, (0, 0, 0), -1) 
 
     cv2.putText(target_image, text, position, font, font_scale, color, thickness)
     return target_image
@@ -52,11 +52,11 @@ def load_images_from_folder(folder):
             # Make sure the image are the same size
             img = cv2.resize(img, (64, 64))
             images.append(img)
-            labels.append(filename[0])  # Suppose the file name begins with the class (e.g. ‘A_01.png’).
+            labels.append(filename[0]) 
     return images, labels
 
 # Load images and labels
-folder_path = r'C:\Users\oleks\Downloads\Number_plates'  # Remplace par le chemin vers ton dataset
+folder_path = ""
 images, labels = load_images_from_folder(folder_path)
 
 print("Image loaded")
@@ -124,7 +124,7 @@ def contains_blue(region):
     upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
     blue_pixels = cv2.countNonZero(mask)
-    return blue_pixels > 350  # Ajusta este umbral según sea necesario
+    return blue_pixels > 350 
 
 score = 0
 total_score = len(all_images)
@@ -193,9 +193,6 @@ for image in all_images:
             # Display the result and exit the loop after detecting the first valid blob
             cv2.imshow("Blob with Blue Detected", cv2.resize(img, (800, 600)))
             registered_plate = img[y_extended:y_extended + h_extended, x_extended:x_extended + w_extended]
-            #cv2.imshow("Plate detected", registered_plate)
-            #cv2.waitKey(0)
-            #cv2.destroyAllWindows()
 
             #ll ----- Segmentation -----
             
@@ -205,10 +202,7 @@ for image in all_images:
             # Apply Gaussian blur to reduce noise
             blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-            # Binary thresholding to obtain a black and white image
-            # Use adaptive thresholding or Otsu to adapt to lighting variations
             _, binary_image = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-            #binary_image = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
 
             # Apply morphological operations to improve segmentation
             # Creation of a core for the opening (small white areas will be removed)
@@ -240,11 +234,6 @@ for image in all_images:
                 x, y, w, h = cv2.boundingRect(contour2)
                 character_image = binary_image[y:y + h, x:x + w]
                 character_images.append(character_image)
-
-            # Display results
-            #cv2.imshow('Contours des caractères', image_with_contours)
-            #cv2.imshow('Image morph', morph_image)
-            #cv2.imshow('Image binary', binary_image)
 
             plate_number = image.split('\\')[-1].split('.')[0]
             plate_predicted = ''
@@ -283,5 +272,3 @@ for image in all_images:
 print(f'Actuel score: {score}')
 print(f'Total of image: {total_score}')
 print(f'Accuracy: {score*100/total_score}%.')
-# I think if we take the biggest blue blob should work for all but one, to fix it if we add that it has to contain blue in the
-# original image we should be set  :D

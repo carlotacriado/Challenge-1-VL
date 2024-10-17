@@ -43,20 +43,23 @@ def extract_hog_features(image):
     return features
 
 # Function for loading an image dataset from a folder
-def load_images_from_folder(folder):
+def load_images_from_folder(directory):
     images = []
     labels = []
-    for filename in os.listdir(folder):
-        img = cv2.imread(os.path.join(folder, filename), cv2.IMREAD_GRAYSCALE)
-        if img is not None:
-            # Make sure the image are the same size
-            img = cv2.resize(img, (64, 64))
-            images.append(img)
-            labels.append(filename[0]) 
+    for folder in os.listdir(directory):
+        folder_path = os.path.join(directory, folder)
+        for file in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, file)
+            img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+            if img is not None:
+                # Make sure the image are the same size
+                img = cv2.resize(img, (64, 64))
+                images.append(img)
+                labels.append(folder)
     return images, labels
 
 # Load images and labels
-folder_path = ""
+folder_path = "Number_plates1"
 images, labels = load_images_from_folder(folder_path)
 
 print("Image loaded")
@@ -242,6 +245,9 @@ for image in all_images:
             for i, char_img in enumerate(character_images):
                 char_img = cv2.bitwise_not(char_img)
                 char_img = cv2.resize(char_img, (64, 64))
+                #cv2.imshow("segmented_character", char_img)
+                #cv2.waitKey()
+                #cv2.destroyAllWindows()
                 
                 test_features = extract_hog_features(char_img).reshape(1, -1)
 
